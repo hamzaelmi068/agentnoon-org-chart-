@@ -1,25 +1,26 @@
 <template>
-    <div class="border rounded-md p-4 shadow bg-white">
-      <div class="flex justify-between items-center">
-        <div>
-          <h2 class="font-bold text-lg text-blue-700">
+    <div :class="['rounded-md p-4 shadow transition-all', cardColor, 'border']">
+      <div class="flex justify-between items-start">
+        <div class="space-y-1">
+          <h2 class="font-bold text-lg text-gray-900">
             {{ person.name }}
-            <span class="text-sm text-gray-400 ml-2">(descendants: {{ descendantCount }})</span>
+            <span class="text-sm text-gray-500 ml-2">(descendants: {{ descendantCount }})</span>
           </h2>
-          <p class="text-sm text-gray-600">{{ person.position }}</p>
-          <p class="text-sm text-gray-500">💰 ${{ person.salary.toLocaleString() }}</p>
+          <p class="text-sm text-gray-700 italic">{{ person.position }}</p>
+          <p class="text-sm text-gray-600">💰 {{ format(person.salary) }}</p>
   
-          <!-- Cost Metrics -->
-          <p class="text-sm text-gray-500">🧑‍💼 IC Cost: ${{ icCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</p>
-          <p class="text-sm text-gray-500">👨‍💼 Manager Cost: ${{ managementCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</p>
-          <p class="text-sm text-gray-500">💼 Total Cost: ${{ totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</p>
-          <p class="text-sm text-gray-500">📊 Manager:IC Ratio: {{ ratio }}</p>
+          <div class="text-xs text-gray-700 space-y-0.5 mt-2">
+            <p>🧑‍💼 IC Cost: {{ format(icCost) }}</p>
+            <p>👨‍💼 Manager Cost: {{ format(managementCost) }}</p>
+            <p>💼 Total Cost: {{ format(totalCost) }}</p>
+            <p>📊 Manager:IC Ratio: {{ ratio }}</p>
+          </div>
         </div>
   
         <button
           v-if="person.children?.length"
           @click="expanded = !expanded"
-          class="text-sm px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+          class="text-xs px-2 py-1 mt-1 bg-white text-gray-700 border rounded hover:bg-gray-100"
         >
           {{ expanded ? 'Collapse' : 'Expand' }}
         </button>
@@ -28,7 +29,7 @@
       <!-- Recursively render children with depth limit -->
       <div
         v-if="expanded && person.children?.length && depth < maxDepth"
-        class="ml-6 mt-4 border-l pl-4 space-y-3"
+        class="ml-6 mt-4 border-l-2 border-gray-300 pl-4 space-y-3"
       >
         <OrgNode
           v-for="child in person.children"
@@ -54,6 +55,9 @@
   
   const maxDepth = 3
   const expanded = ref(true)
+  
+  const format = (num) =>
+    '$' + Number(num).toLocaleString(undefined, { maximumFractionDigits: 0 })
   
   const descendantCount = computed(() => {
     if (!props.person.children || props.person.children.length === 0) return 0
@@ -93,6 +97,21 @@
     const ic = icCost.value
     if (man === 0) return '∞'
     return (ic / man).toFixed(2)
+  })
+  
+  // 💡 Color logic: match department, fallback to neutral
+  const cardColor = computed(() => {
+    const title = props.person.position?.toLowerCase() || ''
+  
+    if (title.includes('engineering')) return 'bg-blue-50'
+    if (title.includes('marketing')) return 'bg-pink-50'
+    if (title.includes('sales')) return 'bg-yellow-50'
+    if (title.includes('finance') || title.includes('accounting')) return 'bg-green-50'
+    if (title.includes('hr') || title.includes('people')) return 'bg-purple-50'
+    if (title.includes('product')) return 'bg-orange-50'
+    if (title.includes('operations')) return 'bg-gray-100'
+  
+    return 'bg-white'
   })
   </script>
   
