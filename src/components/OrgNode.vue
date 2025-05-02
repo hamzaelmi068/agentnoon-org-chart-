@@ -8,9 +8,12 @@
           </h2>
           <p class="text-sm text-gray-600">{{ person.position }}</p>
           <p class="text-sm text-gray-500">💰 ${{ person.salary.toLocaleString() }}</p>
+  
+          <!-- Cost Metrics -->
           <p class="text-sm text-gray-500">🧑‍💼 IC Cost: ${{ icCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</p>
           <p class="text-sm text-gray-500">👨‍💼 Manager Cost: ${{ managementCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</p>
           <p class="text-sm text-gray-500">💼 Total Cost: ${{ totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</p>
+          <p class="text-sm text-gray-500">📊 Manager:IC Ratio: {{ ratio }}</p>
         </div>
   
         <button
@@ -53,18 +56,19 @@
   const expanded = ref(true)
   
   const descendantCount = computed(() => {
+    if (!props.person.children || props.person.children.length === 0) return 0
+  
     const countChildren = (node) => {
       if (!node.children) return 0
       return node.children.length + node.children.reduce((sum, child) => sum + countChildren(child), 0)
     }
+  
     return countChildren(props.person)
   })
   
   const icCost = computed(() => {
     const sumIC = (node) => {
-      if (!node.children || node.children.length === 0) {
-        return node.salary
-      }
+      if (!node.children || node.children.length === 0) return node.salary
       return node.children.reduce((sum, child) => sum + sumIC(child), 0)
     }
     return sumIC(props.person)
@@ -73,15 +77,22 @@
   const managementCost = computed(() => {
     const sumManagers = (node) => {
       if (!node.children || node.children.length === 0) return 0
-      const selfCost = node.salary
-      const childrenCost = node.children.reduce((sum, child) => sum + sumManagers(child), 0)
-      return selfCost + childrenCost
+      const self = node.salary
+      const fromChildren = node.children.reduce((sum, child) => sum + sumManagers(child), 0)
+      return self + fromChildren
     }
     return sumManagers(props.person)
   })
   
   const totalCost = computed(() => {
     return icCost.value + managementCost.value
+  })
+  
+  const ratio = computed(() => {
+    const man = managementCost.value
+    const ic = icCost.value
+    if (man === 0) return '∞'
+    return (ic / man).toFixed(2)
   })
   </script>
   
