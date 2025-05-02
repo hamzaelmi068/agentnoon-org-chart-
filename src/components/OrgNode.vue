@@ -14,10 +14,10 @@
   
         <button
           v-if="person.children?.length"
-          @click="localExpanded = !localExpanded"
+          @click="expanded = !expanded"
           class="text-xs px-2 py-1 mt-1 bg-white text-gray-700 border rounded hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
         >
-          {{ localExpanded ? 'Collapse' : 'Expand' }}
+          {{ expanded ? 'Collapse' : 'Expand' }}
         </button>
       </div>
   
@@ -51,7 +51,7 @@
   
       <!-- Recursive Children -->
       <div
-        v-if="localExpanded && person.children?.length && depth < maxDepth"
+        v-if="expanded && person.children?.length && depth < maxDepth"
         class="ml-6 mt-4 border-l-2 border-gray-300 pl-4 space-y-3 dark:border-gray-600"
       >
         <OrgNode
@@ -59,7 +59,6 @@
           :key="child.id"
           :person="child"
           :depth="depth + 1"
-          :expandedPaths="expandedPaths"
         />
       </div>
     </div>
@@ -71,18 +70,14 @@
   
   const props = defineProps({
     person: Object,
-    depth: { type: Number, default: 0 },
-    expandedPaths: { type: Object, default: () => new Set() }
+    depth: {
+      type: Number,
+      default: 0
+    }
   })
   
   const maxDepth = 3
-  const localExpanded = ref(true)
-  
-  watchEffect(() => {
-    if (props.expandedPaths.has(props.person.id)) {
-      localExpanded.value = true
-    }
-  })
+  const expanded = ref(true)
   
   const format = (num) =>
     '$' + Number(num).toLocaleString(undefined, { maximumFractionDigits: 0 })
