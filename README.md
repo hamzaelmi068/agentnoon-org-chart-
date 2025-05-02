@@ -31,7 +31,7 @@ This project is a Vue + Tailwind application built as part of the Agentnoon codi
 
 ## 🧪 How to Use
 
-1. Upload the provided CSV (`giga-corp.csv`)
+1. Start by Uploading the provided CSV (`giga-corp.csv`)
 2. Wait for the tree to render (CEO appears at the top)
 3. Expand nodes to explore nested team structures
 4. Hover/read values to understand cost breakdowns and ratios
