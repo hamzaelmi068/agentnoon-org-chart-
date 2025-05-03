@@ -1,13 +1,14 @@
+
 <script setup>
 import { ref, computed } from 'vue'
 import Papa from 'papaparse'
 import OrgNode from './components/OrgNode.vue'
 
 const people = ref([])
+const isDragging = ref(false)
 
 function handleFileUpload(e) {
   const file = e.target.files[0]
-
   Papa.parse(file, {
     header: true,
     skipEmptyLines: true,
@@ -22,6 +23,13 @@ function handleFileUpload(e) {
       buildHierarchy()
     }
   })
+}
+
+function handleDrop(e) {
+  isDragging.value = false
+  if (e.dataTransfer?.files?.length) {
+    handleFileUpload({ target: { files: e.dataTransfer.files } })
+  }
 }
 
 function buildHierarchy() {
@@ -49,9 +57,12 @@ const rootPerson = computed(() => people.value.find(p => p.managerId === null))
       Upload a CSV file to visualize your company hierarchy. Calculates IC & manager cost, total salaries, and ratio insights. Built to scale with 40,000+ employees.
     </p>
 
-    <!-- Upload UI -->
     <div
       class="w-full max-w-xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center border-2 border-dashed"
+      :class="isDragging ? 'border-blue-500' : 'border-gray-300'"
+      @dragover.prevent="isDragging = true"
+      @dragleave.prevent="isDragging = false"
+      @drop.prevent="handleDrop"
     >
       <p class="text-gray-700 dark:text-gray-200 mb-4">
         Drag and drop your CSV file here, or
@@ -74,18 +85,11 @@ const rootPerson = computed(() => people.value.find(p => p.managerId === null))
       </p>
     </div>
 
-    <!-- Confirmation -->
     <div v-if="people.length" class="text-green-700 dark:text-green-400 text-center font-medium">
       ✅ Parsed {{ people.length }} people successfully!
     </div>
 
-    <!-- Org Chart Render -->
-    <div v-if="rootPerson?.value" class="mt-6">
-      <OrgNode :person="rootPerson.value" :depth="0" />
-    </div>
-    <div v-else-if="people.length" class="text-center text-red-500 font-medium">
-      ❗ No root person found in the data. Check if any entry has no Manager.
-    </div>
+    <OrgNode v-if="rootPerson" :person="rootPerson" :depth="0" class="mt-6" />
   </div>
 </template>
 

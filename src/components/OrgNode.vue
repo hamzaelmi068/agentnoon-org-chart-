@@ -1,6 +1,6 @@
+
 <template>
     <div :class="['rounded-lg border p-4 shadow-md transition-all duration-200', cardColor, 'hover:shadow-lg hover:scale-[1.01]']">
-      <!-- Top row: Avatar + Name + Collapse -->
       <div class="flex justify-between items-start">
         <div class="flex gap-3 items-center">
           <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-800 font-bold dark:bg-gray-600 dark:text-white">
@@ -14,14 +14,13 @@
   
         <button
           v-if="person.children?.length"
-          @click="expanded = !expanded"
+          @click="localExpanded = !localExpanded"
           class="text-xs px-2 py-1 mt-1 bg-white text-gray-700 border rounded hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
         >
-          {{ expanded ? 'Collapse' : 'Expand' }}
+          {{ localExpanded ? 'Collapse' : 'Expand' }}
         </button>
       </div>
   
-      <!-- Tags -->
       <div class="mt-3 flex flex-wrap gap-2 text-xs">
         <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-full">
           Descendants: {{ descendantCount }}
@@ -34,7 +33,6 @@
         </span>
       </div>
   
-      <!-- Cost Metrics -->
       <div class="mt-4 text-sm text-gray-800 dark:text-gray-200 space-y-1">
         <p>💰 Salary: {{ format(person.salary) }}</p>
         <p>🧑‍💼 IC Cost: {{ format(icCost) }}</p>
@@ -49,9 +47,8 @@
         </div>
       </div>
   
-      <!-- Recursive Children -->
       <div
-        v-if="expanded && person.children?.length && depth < maxDepth"
+        v-if="localExpanded && person.children?.length && depth < maxDepth"
         class="ml-6 mt-4 border-l-2 border-gray-300 pl-4 space-y-3 dark:border-gray-600"
       >
         <OrgNode
@@ -70,24 +67,17 @@
   
   const props = defineProps({
     person: Object,
-    depth: {
-      type: Number,
-      default: 0
-    }
+    depth: { type: Number, default: 0 }
   })
   
   const maxDepth = 3
-  const expanded = ref(true)
+  const localExpanded = ref(true)
   
   const format = (num) =>
     '$' + Number(num).toLocaleString(undefined, { maximumFractionDigits: 0 })
   
   const initials = computed(() =>
-    props.person.name
-      ?.split(' ')
-      .map(w => w[0])
-      .join('')
-      .toUpperCase()
+    props.person.name?.split(' ').map(w => w[0]).join('').toUpperCase()
   )
   
   const descendantCount = computed(() => {
@@ -162,4 +152,6 @@
     return null
   })
   </script>
+  
+  
   
