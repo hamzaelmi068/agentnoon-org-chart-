@@ -1,6 +1,6 @@
 # 📊 Agentnoon Org Chart Visualizer
 
-This project is a Vue + Tailwind application built as part of the Agentnoon coding test. It visualizes a large-scale organizational hierarchy using CSV data, and calculates insightful reporting metrics like descendant counts, IC cost, manager cost, and cost ratios.
+This project is a Vue + Tailwind application. It visualizes a large-scale organizational hierarchy using CSV data, and calculates insightful reporting metrics like descendant counts, IC cost, manager cost, and cost ratios.
 
 ---
 
